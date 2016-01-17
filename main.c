@@ -50,6 +50,31 @@ void add_to_string(char **str_ptr, char *str)
 		strcat(*(str_ptr), str);
 	}
 }
+
+void print_file(char *path, int start_line, int end_line)
+{
+
+	FILE * fp;
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t read;
+
+	fp = fopen(path, "r");
+	if (fp == NULL)
+		exit(EXIT_FAILURE);
+
+
+	int line_count = -1;
+	while ((read = getline(&line, &len, fp)) != -1) {
+		line_count++;
+		if (start_line <= line_count && end_line >= line_count)
+			printf("%s", line);
+	}
+
+	fclose(fp);
+	if (line)
+		free(line);
+}
 	
 
 int main(void)
@@ -68,7 +93,11 @@ int main(void)
 	struct boot_option **boot_options = NULL;
 	int size = 0;
 
+	int line_number = -1;
+	int line_count = -1;
+
 	while ((read = getline(&line, &len, fp)) != -1) {
+		line_count++;
 		if (line[0] == '#')
 			continue;
 
@@ -82,6 +111,9 @@ int main(void)
 				boot_options = realloc(boot_options, ++size * sizeof(struct boot_option *));
 				boot_options[size - 1] = boot;
 				boot->label = strdup(token);
+
+				if (line_number < 0)
+					line_number = line_count;
 				break;
 			} else if (strcmp(token, "MENU") == 0) {
 				token = strtok(NULL, " \t\n");
@@ -132,6 +164,7 @@ int main(void)
 	if (line)
 		free(line);
 
+	print_file(CONFIG_FILE, 0, line_number -1);
 
 	for (int i = 0; i < size; i++) {
 		print_boot_option(boot_options[i]);
