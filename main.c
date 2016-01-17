@@ -75,11 +75,9 @@ void print_file(char *path, int start_line, int end_line)
 	if (line)
 		free(line);
 }
-	
 
-int main(void)
+void parse_config_file(struct boot_option ***boot_options, int *size, int *line_number)
 {
-
 	FILE * fp;
 	char * line = NULL;
 	size_t len = 0;
@@ -90,10 +88,9 @@ int main(void)
 		exit(EXIT_FAILURE);
 
 	struct boot_option *boot;
-	struct boot_option **boot_options = NULL;
-	int size = 0;
+	*size = 0;
 
-	int line_number = -1;
+	*line_number = -1;
 	int line_count = -1;
 
 	while ((read = getline(&line, &len, fp)) != -1) {
@@ -108,12 +105,12 @@ int main(void)
 			if (strcmp(token, "LABEL") == 0) {
 				token = strtok(NULL, " \t\n");
 				boot = new_boot_option();
-				boot_options = realloc(boot_options, ++size * sizeof(struct boot_option *));
-				boot_options[size - 1] = boot;
+				(*boot_options) = realloc((*boot_options), ++(*size) * sizeof(struct boot_option *));
+				(*boot_options)[(*size) - 1] = boot;
 				boot->label = strdup(token);
 
-				if (line_number < 0)
-					line_number = line_count;
+				if (*line_number < 0)
+					*line_number = line_count;
 				break;
 			} else if (strcmp(token, "MENU") == 0) {
 				token = strtok(NULL, " \t\n");
@@ -163,6 +160,16 @@ int main(void)
 	fclose(fp);
 	if (line)
 		free(line);
+}
+	
+
+int main(void)
+{
+	struct boot_option **boot_options = NULL;
+	int size = 0;
+	int line_number = 0;
+	parse_config_file(&boot_options, &size, &line_number);
+
 
 	print_file(CONFIG_FILE, 0, line_number -1);
 
