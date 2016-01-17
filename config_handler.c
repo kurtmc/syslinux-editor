@@ -17,6 +17,24 @@ struct boot_option *new_boot_option()
 	return bo;
 }
 
+void fprint_boot_option(struct boot_option *b, char *path)
+{
+	FILE *fp;
+
+	fp = fopen(path, "a");
+
+	fprintf(fp, "LABEL %s\n", b->label);
+	fprintf(fp, "\tMENU LABEL %s\n", b->menu_label);
+	if (b->image)
+		fprintf(fp, "\tLINUX %s\n", b->image);
+	if (b->root)
+		fprintf(fp, "\tAPPEND %s\n", b->root);
+	if (b->initrd)
+		fprintf(fp, "\tINITRD %s\n", b->initrd);
+	if (b->com32)
+		fprintf(fp, "\tCOM32 %s\n", b->com32);
+	fclose(fp);
+}
 void print_boot_option(struct boot_option *b)
 {
 	printf("LABEL %s\n", b->label);
@@ -37,11 +55,39 @@ void add_to_string(char **str_ptr, char *str)
 		*(str_ptr) = strdup(str);
 	} else {
 		*(str_ptr) = realloc(*(str_ptr), strlen(*(str_ptr)) + strlen(str) + 1); /* +1 for null termination */
-		
+
 		strcat(*(str_ptr), str);
 	}
 }
 
+void fprint_file(char *path, int start_line, int end_line, char *output)
+{
+	FILE * fp;
+	char * line = NULL;
+	size_t len = 0;
+	ssize_t read;
+
+	FILE * out;
+	out = fopen(output, "a");
+
+
+	fp = fopen(path, "r");
+	if (fp == NULL)
+		exit(EXIT_FAILURE);
+
+
+	int line_count = -1;
+	while ((read = getline(&line, &len, fp)) != -1) {
+		line_count++;
+		if (start_line <= line_count && end_line >= line_count)
+			fprintf(out, "%s", line);
+	}
+
+	fclose(out);
+	fclose(fp);
+	if (line)
+		free(line);
+}
 void print_file(char *path, int start_line, int end_line)
 {
 
@@ -162,4 +208,17 @@ void delete_configuration(struct boot_option ***boot_options, int *size, int ind
 
 	(*boot_options) = realloc(*boot_options, *size * sizeof(struct boot_option *));
 
+}
+
+void output_config_file(struct boot_option **boot_options, int size, int line_number, char *path)
+{
+	fprint_file(CONFIG_FILE, 0, line_number -1, path);
+
+	for (int i = 0; i < size; i++) {
+		fprint_boot_option(boot_options[i], path);
+		FILE *fp;
+		fp = fopen(path, "a");
+		fprintf(fp, "\n");
+		fclose(fp);
+	}
 }
