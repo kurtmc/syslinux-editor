@@ -10,6 +10,7 @@ struct boot_option {
 	char *image;
 	char *root;
 	char *initrd;
+	char *com32;
 };
 
 struct boot_option *new_boot_option()
@@ -21,7 +22,18 @@ struct boot_option *new_boot_option()
 	bo->image = NULL;
 	bo->root = NULL;
 	bo->initrd = NULL;
+	bo->com32 = NULL;
 	return bo;
+}
+
+void print_boot_option(struct boot_option *b)
+{
+	printf("LABEL %s\n", b->label);
+	printf("MENU LABEL %s\n", b->menu_label);
+	printf("LINUX %s\n", b->image);
+	printf("APPEND %s\n", b->root);
+	printf("INITRD %s\n", b->initrd);
+	printf("COM32 %s\n", b->com32);
 }
 
 void add_to_string(char **str_ptr, char *str)
@@ -62,7 +74,6 @@ int main(void)
 		while (token) {
 			if (strcmp(token, "LABEL") == 0) {
 				token = strtok(NULL, " \t\n");
-				printf("LABEL: %s\n", token);
 				boot = new_boot_option();
 				boot_options = realloc(boot_options, ++size * sizeof(struct boot_option *));
 				boot_options[size - 1] = boot;
@@ -72,50 +83,44 @@ int main(void)
 				token = strtok(NULL, " \t\n");
 				if (strcmp(token, "LABEL") == 0) {
 					token = strtok(NULL, " \t\n");
-					printf("MENU LABEL:");
 					add_to_string(&boot->menu_label, token);
 					token = strtok(NULL, " \t\n");
 					while (token) {
 						add_to_string(&boot->menu_label, " ");
 						add_to_string(&boot->menu_label, token);
-						printf(" %s", token);
 						token = strtok(NULL, " \t\n");
 					}
-					printf("\n");
 					break;
 				} else {
 					break;
 				}
 			} else if (strcmp(token, "LINUX") == 0) {
 				token = strtok(NULL, " \t\n");
-				printf("LINUX: %s\n", token);
 				add_to_string(&boot->image, token);
 				break;
 			} else if (strcmp(token, "APPEND") == 0) {
 				token = strtok(NULL, " \t\n");
-				printf("APPEND:");
 				add_to_string(&boot->root, token);
 				token = strtok(NULL, " \t\n");
 				while(token) {
 					add_to_string(&boot->root, " ");
 					add_to_string(&boot->root, token);
-					printf(" %s", token);
 					token = strtok(NULL, " \t\n");
 				}
-				printf("\n");
 				break;
 			} else if (strcmp(token, "INITRD") == 0) {
 				token = strtok(NULL, " \t\n");
-				printf("INITRD: %s\n", token);
 				add_to_string(&boot->initrd, token);
 				break;
-
+			} else if (strcmp(token, "COM32") == 0) {
+				token = strtok(NULL, " \t\n");
+				add_to_string(&boot->com32, token);
+				break;
 			} else {
 				break;
 			}
 			token = strtok(NULL, " \t\n");
 		}
-		printf("\n");
 		free(line_copy);
 	}
 
@@ -126,11 +131,7 @@ int main(void)
 
 	for (int i = 0; i < size; i++) {
 		printf("Boot Option %d\n", i);
-		printf("LABEL %s\n", boot_options[i]->label);
-		printf("MENU LABEL %s\n", boot_options[i]->menu_label);
-		printf("LINUX %s\n", boot_options[i]->image);
-		printf("APPEND %s\n", boot_options[i]->root);
-		printf("INITRD %s\n", boot_options[i]->initrd);
+		print_boot_option(boot_options[i]);
 		printf("\n");
 	}
 
