@@ -29,11 +29,15 @@ struct boot_option *new_boot_option()
 void print_boot_option(struct boot_option *b)
 {
 	printf("LABEL %s\n", b->label);
-	printf("MENU LABEL %s\n", b->menu_label);
-	printf("LINUX %s\n", b->image);
-	printf("APPEND %s\n", b->root);
-	printf("INITRD %s\n", b->initrd);
-	printf("COM32 %s\n", b->com32);
+	printf("\tMENU LABEL %s\n", b->menu_label);
+	if (b->image)
+		printf("\tLINUX %s\n", b->image);
+	if (b->root)
+		printf("\tAPPEND %s\n", b->root);
+	if (b->initrd)
+		printf("\tINITRD %s\n", b->initrd);
+	if (b->com32)
+		printf("\tCOM32 %s\n", b->com32);
 }
 
 void add_to_string(char **str_ptr, char *str)
@@ -130,7 +134,6 @@ int main(void)
 
 
 	for (int i = 0; i < size; i++) {
-		printf("Boot Option %d\n", i);
 		print_boot_option(boot_options[i]);
 		printf("\n");
 	}
