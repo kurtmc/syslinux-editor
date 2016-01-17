@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <menu.h>
+#include <string.h>
 #include "config_handler.h"
 
 #define CTRLD 	4
@@ -18,8 +19,15 @@ void build_menu()
 	/* Initialize items */
 	n_choices = size;
 	my_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *));
-	for(i = 0; i < n_choices; ++i)
-		my_items[i] = new_item(boot_options[i]->label, boot_options[i]->menu_label);
+	char *str;
+	for(i = 0; i < n_choices; ++i) {
+		if (boot_options[i]->root) {
+			str = boot_options[i]->root;
+		} else {
+			str = "";
+		}
+		my_items[i] = new_item(boot_options[i]->menu_label, str);
+	}
 	my_items[n_choices] = (ITEM *)NULL;
 
 	/* Create menu */
