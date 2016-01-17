@@ -16,5 +16,6 @@ void print_boot_option(struct boot_option *b);
 void add_to_string(char **str_ptr, char *str);
 void print_file(char *path, int start_line, int end_line);
 void parse_config_file(struct boot_option ***boot_options, int *size, int *line_number);
+void delete_configuration(struct boot_option ***boot_options, int *size, int index);
 
 #endif

@@ -4,21 +4,41 @@
 
 #define CTRLD 	4
 
-char *choices[] = {
-	"Choice 1",
-	"Choice 2",
-	"Choice 3",
-	"Choice 4",
-	"Choice 5",
-	"Choice 6",
-	"Choice 7",
-	"Exit",
-};
+ITEM **my_items;
+int c;				
+MENU *my_menu;
+int n_choices, i;
+ITEM *cur_item;
+int size = 0;
+struct boot_option **boot_options = NULL;
+
+void build_menu()
+{
+	clear();
+	/* Initialize items */
+	n_choices = size;
+	my_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *));
+	for(i = 0; i < n_choices; ++i)
+		my_items[i] = new_item(boot_options[i]->label, boot_options[i]->menu_label);
+	my_items[n_choices] = (ITEM *)NULL;
+
+	/* Create menu */
+	my_menu = new_menu((ITEM **)my_items);
+
+	/* Set fore ground and back ground of the menu */
+	set_menu_fore(my_menu, COLOR_PAIR(1) | A_REVERSE);
+	set_menu_back(my_menu, COLOR_PAIR(2));
+	set_menu_grey(my_menu, COLOR_PAIR(3));
+
+	/* Post the menu */
+	mvprintw(LINES - 4, 0, "Hightlight option and press 'd' to select it for deletion");
+	mvprintw(LINES - 3, 0, "J and K arrow keys to naviage, q to quit");
+	mvprintw(LINES - 2, 0, "After selecting options press a to apply changes");
+	post_menu(my_menu);
+}
 
 int main(void)
 {
-	struct boot_option **boot_options = NULL;
-	int size = 0;
 	int line_number = 0;
 	parse_config_file(&boot_options, &size, &line_number);
 
@@ -29,18 +49,6 @@ int main(void)
 		//printf("\n");
 	//}
 	
-	char **choices = malloc((size + 1) * sizeof(char *));
-	for (int i = 0; i < size; i++) {
-		choices[i] = boot_options[i]->label;
-	}
-
-	choices[size] = strdup("Exit");
-
-	ITEM **my_items;
-	int c;				
-	MENU *my_menu;
-	int n_choices, i;
-	ITEM *cur_item;
 
 	/* Initialize curses */	
 	initscr();
@@ -52,35 +60,22 @@ int main(void)
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
 	init_pair(3, COLOR_MAGENTA, COLOR_BLACK);
 
-	/* Initialize items */
-	n_choices = size + 1;
-	my_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *));
-	for(i = 0; i < n_choices; ++i)
-		my_items[i] = new_item(choices[i], choices[i]);
-	my_items[n_choices] = (ITEM *)NULL;
-	//item_opts_off(my_items[3], O_SELECTABLE);
-	//item_opts_off(my_items[6], O_SELECTABLE);
-
-	/* Create menu */
-	my_menu = new_menu((ITEM **)my_items);
-
-	/* Set fore ground and back ground of the menu */
-	set_menu_fore(my_menu, COLOR_PAIR(1) | A_REVERSE);
-	set_menu_back(my_menu, COLOR_PAIR(2));
-	set_menu_grey(my_menu, COLOR_PAIR(3));
-
-	/* Post the menu */
-	mvprintw(LINES - 3, 0, "Press <ENTER> to see the option selected");
-	mvprintw(LINES - 2, 0, "Up and Down arrow keys to naviage (F1 to Exit)");
-	post_menu(my_menu);
+	build_menu();
 	refresh();
 
+	int count = 0;
 	while((c = getch()) != KEY_F(1))
 	{       switch(c)
 		{	case KEY_DOWN:
 				menu_driver(my_menu, REQ_DOWN_ITEM);
 				break;
+			case 'j':
+				menu_driver(my_menu, REQ_DOWN_ITEM);
+				break;
 			case KEY_UP:
+				menu_driver(my_menu, REQ_UP_ITEM);
+				break;
+			case 'k':
 				menu_driver(my_menu, REQ_UP_ITEM);
 				break;
 			case 10: /* Enter */
@@ -100,6 +95,28 @@ int main(void)
 					item_opts_on(current_item(my_menu), O_SELECTABLE);
 				}
 				break;
+			case 'a':
+				count = 0;
+				int *indexes = NULL;
+				int num_indexes = 0;
+				for (int i = 0; i < n_choices; i++) {
+					if (O_SELECTABLE & item_opts(my_items[i]) != O_SELECTABLE) {
+						indexes = realloc(indexes, ++num_indexes * sizeof(int));
+						indexes[num_indexes - 1] = i;
+
+
+					}
+				}
+				for (int i = num_indexes - 1; i >= 0; i--) {
+					delete_configuration(&boot_options, &size, indexes[i]);
+				}
+				build_menu();
+				refresh();
+				break;
+				
+
+			case 'q':
+				goto exit;
 		}
 	}	
 

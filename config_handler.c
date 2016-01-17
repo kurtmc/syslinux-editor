@@ -152,3 +152,14 @@ void parse_config_file(struct boot_option ***boot_options, int *size, int *line_
 	if (line)
 		free(line);
 }
+
+void delete_configuration(struct boot_option ***boot_options, int *size, int index) {
+	for (int i = index; i < *size - 1; i++) {
+		(*boot_options)[i] = (*boot_options)[i + 1];
+	}
+
+	(*size)--;
+
+	(*boot_options) = realloc(*boot_options, *size * sizeof(struct boot_option *));
+
+}
