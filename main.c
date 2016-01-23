@@ -47,6 +47,7 @@ void build_menu()
 
 int main(void)
 {
+	printf("%s\n", CONFIG_FILE);
 	int line_number = 0;
 	parse_config_file(&boot_options, &size, &line_number);
 	

@@ -1,7 +1,12 @@
 #ifndef CONFIG_HANDLER_H
 #define CONFIG_HANDLER_H
 
+
+#ifdef DEBUG
+#define CONFIG_FILE "test-boot/syslinux/syslinux.cfg"
+#else
 #define CONFIG_FILE "/boot/syslinux/syslinux.cfg"
+#endif
 
 struct boot_option {
 	char *label;
