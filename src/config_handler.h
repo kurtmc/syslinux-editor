@@ -17,11 +17,11 @@ void fprint_boot_option(struct boot_option *b, char *path);
 void add_to_string(char **str_ptr, char *str);
 void print_file(char *path, int start_line, int end_line);
 void fprint_file(char *path, int start_line, int end_line, char *output);
-void parse_config_file(struct boot_option ***boot_options, int *size, int
-		*line_number, char *config_file);
-void delete_configuration(struct boot_option
-			***boot_options, int *size, int index);
-void output_config_file(struct boot_option **boot_options, int size, int
-		line_number, char *path, char *input_file);
+void parse_config_file(struct boot_option ***boot_options, int *size,
+		int *line_number, char *config_file);
+void delete_configuration(struct boot_option ***boot_options, int *size,
+		int index, char *boot_dir);
+void output_config_file(struct boot_option **boot_options, int size,
+		int line_number, char *path, char *input_file);
 
 #endif

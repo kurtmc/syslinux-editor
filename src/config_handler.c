@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libgen.h>
 
 #include "config_handler.h"
 
@@ -212,8 +213,9 @@ void parse_config_file(struct boot_option ***boot_options, int *size, int
 }
 
 void delete_configuration(struct boot_option ***boot_options, int *size, int
-		index) {
-	free_boot_option((*boot_options)[index]);
+		index, char *boot_dir) {
+	struct boot_option *bo = (*boot_options)[index];
+
 	for (int i = index; i < *size - 1; i++)
 		(*boot_options)[i] = (*boot_options)[i + 1];
 
@@ -222,6 +224,26 @@ void delete_configuration(struct boot_option ***boot_options, int *size, int
 	(*boot_options) = realloc(*boot_options, *size * sizeof(struct
 				boot_option *));
 
+
+	char *image;
+	if (bo->image != NULL) {
+		image = NULL;
+		add_to_string(&image, boot_dir);
+		add_to_string(&image, "/");
+		add_to_string(&image, basename(bo->image));
+		remove(image);
+		free(image);
+	}
+	char *initrd;
+	if (bo->initrd != NULL) {
+		initrd = NULL;
+		add_to_string(&initrd, boot_dir);
+		add_to_string(&initrd, "/");
+		add_to_string(&initrd, basename(bo->initrd));
+		remove(initrd);
+		free(initrd);
+	}
+	free_boot_option(bo);
 }
 
 void output_config_file(struct boot_option **boot_options, int size, int

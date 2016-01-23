@@ -134,7 +134,7 @@ int main(void)
 			}
 			for (int i = num_indexes - 1; i >= 0; i--) {
 				delete_configuration(&boot_options, &size,
-						indexes[i]);
+						indexes[i], BOOT_DIR);
 			}
 			build_menu();
 			refresh();
