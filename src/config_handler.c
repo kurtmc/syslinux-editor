@@ -252,7 +252,8 @@ void output_config_file(struct boot_option **boot_options, int size, int
 
 	for (int i = 0; i < size; i++) {
 		fprint_boot_option(fp, boot_options[i]);
-		fprintf(fp, "\n");
+		if (i < size - 1)
+			fprintf(fp, "\n");
 	}
 	fclose(fp);
 }
