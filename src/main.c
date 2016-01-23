@@ -68,7 +68,9 @@ int main(void)
 	build_menu();
 	refresh();
 
-	int count = 0;
+	int *indexes;
+	int num_indexes;
+
 	while((c = getch()) != KEY_F(1))
 	{       switch(c)
 		{	case KEY_DOWN:
@@ -86,7 +88,7 @@ int main(void)
 			case 10: /* Enter */
 				move(20, 0);
 				clrtoeol();
-				char *selected = item_name(current_item(my_menu));
+				const char *selected = item_name(current_item(my_menu));
 				if (strcmp(selected, "Exit") == 0) {
 					goto exit;
 				}
@@ -94,18 +96,17 @@ int main(void)
 				pos_menu_cursor(my_menu);
 				break;
 			case 'd':
-				if (O_SELECTABLE & item_opts(current_item(my_menu)) == O_SELECTABLE) {
+				if ((O_SELECTABLE & item_opts(current_item(my_menu))) == O_SELECTABLE) {
 					item_opts_off(current_item(my_menu), O_SELECTABLE);
 				} else {
 					item_opts_on(current_item(my_menu), O_SELECTABLE);
 				}
 				break;
 			case 'a':
-				count = 0;
-				int *indexes = NULL;
-				int num_indexes = 0;
+				indexes = NULL;
+				num_indexes = 0;
 				for (int i = 0; i < n_choices; i++) {
-					if (O_SELECTABLE & item_opts(my_items[i]) != O_SELECTABLE) {
+					if ((O_SELECTABLE & item_opts(my_items[i])) != O_SELECTABLE) {
 						indexes = realloc(indexes, ++num_indexes * sizeof(int));
 						indexes[num_indexes - 1] = i;
 
