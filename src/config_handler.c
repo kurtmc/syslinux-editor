@@ -319,7 +319,6 @@ void output_config_file(struct node *head, char *path)
  * Don't pass a non malloced pointer as boot_options */
 void get_boot_options_list(struct boot_option ***boot_options, int *size, struct node *head)
 {
-	(*boot_options) = NULL;
 	*size = 0;
 	struct node *current;
 	current = head;
