@@ -65,8 +65,8 @@ int main(void)
 
 	int line_number = 0;
 
-	parse_config_file(&boot_options, &size, &line_number, config_file);
-
+	struct node *head = parse_config_file(&boot_options, &size, &line_number, config_file);
+	get_boot_options_list(&boot_options, &size, head);
 
 	/* Initialize curses */
 	initscr();
@@ -81,7 +81,7 @@ int main(void)
 	build_menu();
 	refresh();
 
-	int *indexes;
+	struct boot_option **to_delete_array;
 	int num_indexes;
 
 	while ((c = getch()) != KEY_F(1)) {
@@ -119,27 +119,28 @@ int main(void)
 			}
 			break;
 		case 'a':
-			indexes = NULL;
+			to_delete_array = NULL;
 			num_indexes = 0;
 			for (int i = 0; i < n_choices; i++) {
 				if ((O_SELECTABLE & item_opts(my_items[i])) !=
 						O_SELECTABLE) {
-					indexes = realloc(indexes,
+					to_delete_array = realloc(to_delete_array,
 							++num_indexes *
-							sizeof(int));
-					indexes[num_indexes - 1] = i;
+							sizeof(struct boot_option *));
+					to_delete_array[num_indexes - 1] = boot_options[i];
 
 
 				}
 			}
 			for (int i = num_indexes - 1; i >= 0; i--) {
-				delete_configuration(&boot_options, &size,
-						indexes[i], BOOT_DIR);
+				/*delete_configuration(&boot_options, &size,
+						indexes[i], BOOT_DIR);*/
+				delete_configuration(&head, to_delete_array[i], BOOT_DIR);
+				get_boot_options_list(&boot_options, &size, head);
 			}
 			build_menu();
 			refresh();
-			output_config_file(boot_options, size, line_number,
-					"test.txt", config_file);
+			output_config_file(head, "test.txt");
 
 			break;
 

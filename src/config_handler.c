@@ -125,7 +125,7 @@ void print_file(char *path, int start_line, int end_line)
 		free(line);
 }
 
-void parse_config_file(struct boot_option ***boot_options, int *size, int
+struct node *parse_config_file(struct boot_option ***boot_options, int *size, int
 		*line_number, char *config_file) {
 	FILE *fp;
 	char *line = NULL;
@@ -136,6 +136,8 @@ void parse_config_file(struct boot_option ***boot_options, int *size, int
 	if (fp == NULL)
 		exit(EXIT_FAILURE);
 
+	struct node *head = NULL;
+	struct node *tail = NULL;
 	struct boot_option *boot;
 	*size = 0;
 
@@ -144,18 +146,28 @@ void parse_config_file(struct boot_option ***boot_options, int *size, int
 
 	while ((read = getline(&line, &len, fp)) != -1) {
 		line_count++;
-		if (line[0] == '#')
-			continue;
 
 		char *line_copy;
 
 		line_copy = strdup(line);
 		char *token = strtok(line_copy, " \t\n");
 
-		while (token) {
+		if (token) {
 			if (strcmp(token, "LABEL") == 0) {
 				token = strtok(NULL, " \t\n");
 				boot = new_boot_option();
+				struct node *current;
+				if (head == NULL) {
+					head = malloc(sizeof(struct node*));
+					current = head;
+				} else {
+					tail->next = malloc(sizeof(struct node*));
+					current = tail->next;
+				}
+				current->type = BOOT_OPTION;
+				current->data = boot;
+				current->next = NULL;
+				tail = current;
 				(*boot_options) = realloc((*boot_options),
 						++(*size) * sizeof(struct
 							boot_option *));
@@ -196,8 +208,33 @@ void parse_config_file(struct boot_option ***boot_options, int *size, int
 			} else if (strcmp(token, "COM32") == 0) {
 				token = strtok(NULL, " \t\n");
 				add_to_string(&boot->com32, token);
+			} else {
+				struct node *current;
+				if (head == NULL) {
+					head = malloc(sizeof(struct node*));
+					current = head;
+				} else {
+					tail->next = malloc(sizeof(struct node*));
+					current = tail->next;
+				}
+				current->type = TEXT_BLOCK;
+				current->data = strdup(line);
+				current->next = NULL;
+				tail = current;
 			}
-			break;
+		} else {
+			struct node *current;
+			if (head == NULL) {
+				head = malloc(sizeof(struct node*));
+				current = head;
+			} else {
+				tail->next = malloc(sizeof(struct node*));
+				current = tail->next;
+			}
+			current->type = TEXT_BLOCK;
+			current->data = strdup(line);
+			current->next = NULL;
+			tail = current;
 		}
 		free(line_copy);
 	}
@@ -205,55 +242,95 @@ void parse_config_file(struct boot_option ***boot_options, int *size, int
 	fclose(fp);
 	if (line)
 		free(line);
+	return head;
 }
 
-void delete_configuration(struct boot_option ***boot_options, int *size, int
-		index, char *boot_dir) {
-	struct boot_option *bo = (*boot_options)[index];
+void delete_configuration(struct node **head, struct boot_option *to_delete, char *boot_dir)
+{
+	/* Handle to_delete is the head node */
+	if (to_delete == (struct boot_option *)(*head)->data) {
+		*head = (*head)->next;
+	}
 
-	for (int i = index; i < *size - 1; i++)
-		(*boot_options)[i] = (*boot_options)[i + 1];
-
-	(*size)--;
-
-	(*boot_options) = realloc(*boot_options, *size * sizeof(struct
-				boot_option *));
-
+	struct node *current = (*head)->next;
+	struct node *previous = *head;
+	while (current) {
+		if ((struct boot_option *)current->data == to_delete) {
+			previous->next = current->next;
+		}
+		current = current->next;
+		previous = previous->next;
+	}
 
 	char *image;
-	if (bo->image != NULL) {
+	if (to_delete->image != NULL) {
 		image = NULL;
 		add_to_string(&image, boot_dir);
 		add_to_string(&image, "/");
-		add_to_string(&image, basename(bo->image));
+		add_to_string(&image, basename(to_delete->image));
 		remove(image);
 		free(image);
 	}
 	char *initrd;
-	if (bo->initrd != NULL) {
+	if (to_delete->initrd != NULL) {
 		initrd = NULL;
 		add_to_string(&initrd, boot_dir);
 		add_to_string(&initrd, "/");
-		add_to_string(&initrd, basename(bo->initrd));
+		add_to_string(&initrd, basename(to_delete->initrd));
 		remove(initrd);
 		free(initrd);
 	}
-	free_boot_option(bo);
+	free_boot_option(to_delete);
 }
 
-void output_config_file(struct boot_option **boot_options, int size, int
-		line_number, char *path, char *input_file) {
-	char *header = get_part_file(input_file, 0, line_number - 1);
+void output_config_file(struct node *head, char *path)
+{
 	FILE *fp;
 
 	fp = fopen(path, "w+");
 
-	fprintf(fp, header);
-
-	for (int i = 0; i < size; i++) {
-		fprint_boot_option(fp, boot_options[i]);
-		if (i < size - 1)
-			fprintf(fp, "\n");
+	struct node *current;
+	current = head;
+	while (current) {
+		if (current->type == BOOT_OPTION) {
+			fprint_boot_option(fp, (struct boot_option *)current->data);
+		} else {
+			fprintf(fp, (char *)current->data);
+		}
+		current = current->next;
 	}
 	fclose(fp);
+}
+
+/* Get an array or struct boot_option * from a mixed linked list 
+ * Don't pass a non malloced pointer as boot_options */
+void get_boot_options_list(struct boot_option ***boot_options, int *size, struct node *head)
+{
+	(*boot_options) = NULL;
+	*size = 0;
+	struct node *current;
+	current = head;
+	while (current) {
+		if (current->type == BOOT_OPTION) {
+			(*boot_options) =
+				realloc(*boot_options,
+				++(*size) * sizeof(struct boot_option *));
+			(*boot_options)[*size - 1] = (struct boot_option *)current->data;
+		}
+		current = current->next;
+	}
+}
+
+void print_list(struct node *head)
+{
+	struct node *current;
+	current = head;
+	while (current) {
+		if (current->type == BOOT_OPTION) {
+			print_boot_option((struct boot_option *)current->data);
+		} else {
+			printf((char *)current->data);
+		}
+		current = current->next;
+	}
 }
