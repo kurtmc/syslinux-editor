@@ -189,6 +189,19 @@ struct node *parse_config_file(struct boot_option ***boot_options, int *size, in
 								token);
 						token = strtok(NULL, " \t\n");
 					}
+				} else {
+					struct node *current;
+					if (head == NULL) {
+						head = malloc(sizeof(struct node*));
+						current = head;
+					} else {
+						tail->next = malloc(sizeof(struct node*));
+						current = tail->next;
+					}
+					current->type = TEXT_BLOCK;
+					current->data = strdup(line);
+					current->next = NULL;
+					tail = current;
 				}
 			} else if (strcmp(token, "LINUX") == 0) {
 				token = strtok(NULL, " \t\n");
