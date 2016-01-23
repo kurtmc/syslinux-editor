@@ -18,6 +18,17 @@ struct boot_option *new_boot_option()
 	return bo;
 }
 
+void free_boot_option(struct boot_option *bo)
+{
+	free(bo->label);
+	free(bo->menu_label);
+	free(bo->image);
+	free(bo->root);
+	free(bo->initrd);
+	free(bo->com32);
+	free(bo);
+}
+
 void fprint_boot_option(struct boot_option *b, char *path)
 {
 	FILE *fp;
@@ -202,6 +213,7 @@ void parse_config_file(struct boot_option ***boot_options, int *size, int
 
 void delete_configuration(struct boot_option ***boot_options, int *size, int
 		index) {
+	free_boot_option((*boot_options)[index]);
 	for (int i = index; i < *size - 1; i++)
 		(*boot_options)[i] = (*boot_options)[i + 1];
 
