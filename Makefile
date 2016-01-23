@@ -18,4 +18,4 @@ config_editor: $(OBJECTS)
 
 clean:
 	-rm -f $(SRC_DIR)/$(OBJECTS)
-	-rm -f $(SRC_DIR)/config_editor
+	-rm -f config_editor

@@ -47,7 +47,9 @@ void build_menu()
 
 int main(void)
 {
-	printf("%s\n", CONFIG_FILE);
+	char *config_file = NULL;
+	add_to_string(&config_file, BOOT_DIR);
+	add_to_string(&config_file, "/syslinux/syslinux.cfg");
 	int line_number = 0;
 	parse_config_file(&boot_options, &size, &line_number);
 	
@@ -114,7 +116,7 @@ int main(void)
 				}
 				build_menu();
 				refresh();
-				output_config_file(boot_options, size, line_number, "test.txt");
+				output_config_file(boot_options, size, line_number, "test.txt", config_file);
 
 				break;
 				
@@ -130,6 +132,7 @@ exit:
 		free_item(my_items[i]);
 	free_menu(my_menu);
 	endwin();
+	free(config_file);
 
 
 

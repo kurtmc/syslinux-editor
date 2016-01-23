@@ -120,7 +120,10 @@ void parse_config_file(struct boot_option ***boot_options, int *size, int *line_
 	size_t len = 0;
 	ssize_t read;
 
-	fp = fopen(CONFIG_FILE, "r");
+	char *config_file = NULL;
+	add_to_string(&config_file, BOOT_DIR);
+	add_to_string(&config_file, "/syslinux/syslinux.cfg");
+	fp = fopen(config_file, "r");
 	if (fp == NULL)
 		exit(EXIT_FAILURE);
 
@@ -210,9 +213,9 @@ void delete_configuration(struct boot_option ***boot_options, int *size, int ind
 
 }
 
-void output_config_file(struct boot_option **boot_options, int size, int line_number, char *path)
+void output_config_file(struct boot_option **boot_options, int size, int line_number, char *path, char *input_file)
 {
-	fprint_file(CONFIG_FILE, 0, line_number -1, path);
+	fprint_file(input_file, 0, line_number -1, path);
 
 	for (int i = 0; i < size; i++) {
 		fprint_boot_option(boot_options[i], path);
