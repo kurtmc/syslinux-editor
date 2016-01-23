@@ -37,6 +37,7 @@ void build_menu()
 	set_menu_fore(my_menu, COLOR_PAIR(1) | A_REVERSE);
 	set_menu_back(my_menu, COLOR_PAIR(2));
 	set_menu_grey(my_menu, COLOR_PAIR(3));
+	set_menu_format(my_menu, 40, 1);
 
 	/* Post the menu */
 	mvprintw(LINES - 4, 0, "Hightlight option and press 'd' to select it for deletion");
