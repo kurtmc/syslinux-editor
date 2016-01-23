@@ -158,10 +158,10 @@ struct node *parse_config_file(struct boot_option ***boot_options, int *size, in
 				boot = new_boot_option();
 				struct node *current;
 				if (head == NULL) {
-					head = malloc(sizeof(struct node*));
+					head = malloc(sizeof(struct node));
 					current = head;
 				} else {
-					tail->next = malloc(sizeof(struct node*));
+					tail->next = malloc(sizeof(struct node));
 					current = tail->next;
 				}
 				current->type = BOOT_OPTION;
@@ -192,10 +192,10 @@ struct node *parse_config_file(struct boot_option ***boot_options, int *size, in
 				} else {
 					struct node *current;
 					if (head == NULL) {
-						head = malloc(sizeof(struct node*));
+						head = malloc(sizeof(struct node));
 						current = head;
 					} else {
-						tail->next = malloc(sizeof(struct node*));
+						tail->next = malloc(sizeof(struct node));
 						current = tail->next;
 					}
 					current->type = TEXT_BLOCK;
@@ -224,10 +224,10 @@ struct node *parse_config_file(struct boot_option ***boot_options, int *size, in
 			} else {
 				struct node *current;
 				if (head == NULL) {
-					head = malloc(sizeof(struct node*));
+					head = malloc(sizeof(struct node));
 					current = head;
 				} else {
-					tail->next = malloc(sizeof(struct node*));
+					tail->next = malloc(sizeof(struct node));
 					current = tail->next;
 				}
 				current->type = TEXT_BLOCK;
@@ -238,10 +238,10 @@ struct node *parse_config_file(struct boot_option ***boot_options, int *size, in
 		} else {
 			struct node *current;
 			if (head == NULL) {
-				head = malloc(sizeof(struct node*));
+				head = malloc(sizeof(struct node));
 				current = head;
 			} else {
-				tail->next = malloc(sizeof(struct node*));
+				tail->next = malloc(sizeof(struct node));
 				current = tail->next;
 			}
 			current->type = TEXT_BLOCK;
