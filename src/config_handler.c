@@ -119,16 +119,12 @@ void print_file(char *path, int start_line, int end_line)
 }
 
 void parse_config_file(struct boot_option ***boot_options, int *size, int
-		*line_number) {
+		*line_number, char *config_file) {
 	FILE *fp;
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
 
-	char *config_file = NULL;
-
-	add_to_string(&config_file, BOOT_DIR);
-	add_to_string(&config_file, "/syslinux/syslinux.cfg");
 	fp = fopen(config_file, "r");
 	if (fp == NULL)
 		exit(EXIT_FAILURE);

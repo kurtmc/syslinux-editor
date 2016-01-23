@@ -2,11 +2,6 @@
 #define CONFIG_HANDLER_H
 
 
-#ifdef DEBUG
-#define BOOT_DIR  "./test/test-boot"
-#else
-#define BOOT_DIR "/boot"
-#endif
 
 struct boot_option {
 	char *label;
@@ -23,7 +18,8 @@ void add_to_string(char **str_ptr, char *str);
 void print_file(char *path, int start_line, int end_line);
 void fprint_file(char *path, int start_line, int end_line, char *output);
 void parse_config_file(struct boot_option ***boot_options, int *size, int
-		*line_number); void delete_configuration(struct boot_option
+		*line_number, char *config_file);
+void delete_configuration(struct boot_option
 			***boot_options, int *size, int index);
 void output_config_file(struct boot_option **boot_options, int size, int
 		line_number, char *path, char *input_file);

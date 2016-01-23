@@ -5,6 +5,12 @@
 
 #define CTRLD 4
 
+#ifdef DEBUG
+#define BOOT_DIR  "./test/test-boot"
+#else
+#define BOOT_DIR "/boot"
+#endif
+
 ITEM **my_items;
 int c;
 MENU *my_menu;
@@ -51,13 +57,15 @@ void build_menu(void)
 
 int main(void)
 {
+	/* Get path to config file */
 	char *config_file = NULL;
 
 	add_to_string(&config_file, BOOT_DIR);
 	add_to_string(&config_file, "/syslinux/syslinux.cfg");
+
 	int line_number = 0;
 
-	parse_config_file(&boot_options, &size, &line_number);
+	parse_config_file(&boot_options, &size, &line_number, config_file);
 
 
 	/* Initialize curses */
