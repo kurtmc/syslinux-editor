@@ -50,14 +50,15 @@ void add_to_string(char **str_ptr, int num, ...)
 	va_start(valist, num);
 
 	for (int i = 0; i < num; i++) {
-		char *str = strdup(va_arg(valist, char *));
+		char *str = va_arg(valist, char *);
 		if (*(str_ptr) == NULL) {
-			*(str_ptr) = str;
+			*(str_ptr) = strdup(str);
 		} else {
 			*(str_ptr) = realloc(*(str_ptr), strlen(*(str_ptr)) +
 					strlen(str) + 1); /* +1 for null termination */
 
 			strcat(*(str_ptr), str);
+
 		}
 	}
 	va_end(valist);
