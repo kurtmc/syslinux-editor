@@ -43,19 +43,6 @@ void fprint_boot_option(FILE *fp, struct boot_option *b)
 	if (b->com32)
 		fprintf(fp, "\tCOM32 %s\n", b->com32);
 }
-void print_boot_option(struct boot_option *b)
-{
-	printf("LABEL %s\n", b->label);
-	printf("\tMENU LABEL %s\n", b->menu_label);
-	if (b->image)
-		printf("\tLINUX %s\n", b->image);
-	if (b->root)
-		printf("\tAPPEND %s\n", b->root);
-	if (b->initrd)
-		printf("\tINITRD %s\n", b->initrd);
-	if (b->com32)
-		printf("\tCOM32 %s\n", b->com32);
-}
 
 void add_to_string(char **str_ptr, int num, ...)
 {
@@ -76,36 +63,6 @@ void add_to_string(char **str_ptr, int num, ...)
 	va_end(valist);
 }
 
-char *get_part_file(char *path, int start_line, int end_line)
-{
-	char *result = NULL;
-
-	FILE *fp;
-	char *line = NULL;
-	size_t len = 0;
-	ssize_t read;
-
-
-
-
-	fp = fopen(path, "r");
-	if (fp == NULL)
-		exit(EXIT_FAILURE);
-
-
-	int line_count = -1;
-
-	while ((read = getline(&line, &len, fp)) != -1) {
-		line_count++;
-		if (start_line <= line_count && end_line >= line_count)
-			add_to_string(&result, 1, line);
-	}
-
-	fclose(fp);
-	if (line)
-		free(line);
-	return result;
-}
 void print_file(char *path, int start_line, int end_line)
 {
 
@@ -352,20 +309,6 @@ void get_boot_options_list(struct boot_option ***boot_options, int *size, struct
 				realloc(*boot_options,
 				++(*size) * sizeof(struct boot_option *));
 			(*boot_options)[*size - 1] = (struct boot_option *)current->data;
-		}
-		current = current->next;
-	}
-}
-
-void print_list(struct node *head)
-{
-	struct node *current;
-	current = head;
-	while (current) {
-		if (current->type == BOOT_OPTION) {
-			print_boot_option((struct boot_option *)current->data);
-		} else {
-			printf((char *)current->data);
 		}
 		current = current->next;
 	}
