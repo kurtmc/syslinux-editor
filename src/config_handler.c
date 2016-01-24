@@ -63,32 +63,6 @@ void add_to_string(char **str_ptr, int num, ...)
 	va_end(valist);
 }
 
-void print_file(char *path, int start_line, int end_line)
-{
-
-	FILE *fp;
-	char *line = NULL;
-	size_t len = 0;
-	ssize_t read;
-
-	fp = fopen(path, "r");
-	if (fp == NULL)
-		exit(EXIT_FAILURE);
-
-
-	int line_count = -1;
-
-	while ((read = getline(&line, &len, fp)) != -1) {
-		line_count++;
-		if (start_line <= line_count && end_line >= line_count)
-			printf("%s", line);
-	}
-
-	fclose(fp);
-	if (line)
-		free(line);
-}
-
 struct node *parse_config_file(char *config_file)
 {
 	FILE *fp;
