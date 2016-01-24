@@ -5,4 +5,4 @@ $ make
 $ cp syslinux_editor /usr/bin/
 ```
 Usage:
-[![asciicast](https://asciinema.org/a/752a1tolxi93bzdlyqpwi29c1.png)](https://asciinema.org/a/752a1tolxi93bzdlyqpwi29c1)
+![ttystudio](https://raw.githubusercontent.com/kurtmc/syslinux-editor/master/example.gif)
