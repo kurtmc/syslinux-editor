@@ -3,7 +3,7 @@ HEADERS = $(SRC_DIR)/config_handler.h
 OBJECTS = $(SRC_DIR)/config_handler.o $(SRC_DIR)/main.o
 LIBS = -lncurses -lmenu
 CC = gcc
-CFLAGS = -g -Wall -Wextra -Wpedantic
+CFLAGS = -g -Wall -Wextra -Wpedantic -std=gnu11
 
 default: syslinux_editor
 
@@ -17,5 +17,5 @@ syslinux_editor: $(OBJECTS)
 	$(CC) $(OBJECTS) $(LIBS) -o $@
 
 clean:
-	-rm -f $(SRC_DIR)/$(OBJECTS)
+	-rm -f $(OBJECTS)
 	-rm -f syslinux_editor
