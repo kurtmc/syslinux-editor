@@ -89,8 +89,8 @@ void print_file(char *path, int start_line, int end_line)
 		free(line);
 }
 
-struct node *parse_config_file(struct boot_option ***boot_options, int *size, int
-		*line_number, char *config_file) {
+struct node *parse_config_file(char *config_file)
+{
 	FILE *fp;
 	char *line = NULL;
 	size_t len = 0;
@@ -103,13 +103,9 @@ struct node *parse_config_file(struct boot_option ***boot_options, int *size, in
 	struct node *head = NULL;
 	struct node *tail = NULL;
 	struct boot_option *boot;
-	*size = 0;
 
-	*line_number = -1;
-	int line_count = -1;
 
 	while ((read = getline(&line, &len, fp)) != -1) {
-		line_count++;
 
 		char *line_copy;
 
@@ -132,14 +128,8 @@ struct node *parse_config_file(struct boot_option ***boot_options, int *size, in
 				current->data = boot;
 				current->next = NULL;
 				tail = current;
-				(*boot_options) = realloc((*boot_options),
-						++(*size) * sizeof(struct
-							boot_option *));
-				(*boot_options)[(*size) - 1] = boot;
 				boot->label = strdup(token);
 
-				if (*line_number < 0)
-					*line_number = line_count;
 			} else if (strcmp(token, "MENU") == 0) {
 				token = strtok(NULL, " \t\n");
 				if (strcmp(token, "LABEL") == 0) {

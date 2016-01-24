@@ -62,9 +62,7 @@ int main(void)
 
 	add_to_string(&config_file, 2, BOOT_DIR, "/syslinux/syslinux.cfg");
 
-	int line_number = 0;
-
-	struct node *head = parse_config_file(&boot_options, &size, &line_number, config_file);
+	struct node *head = parse_config_file(config_file);
 	get_boot_options_list(&boot_options, &size, head);
 
 	/* Initialize curses */
