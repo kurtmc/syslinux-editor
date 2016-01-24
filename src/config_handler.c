@@ -64,7 +64,6 @@ void add_to_string(char **str_ptr, int num, ...)
 
 	for (int i = 0; i < num; i++) {
 		char *str = strdup(va_arg(valist, char *));
-		printf("%s\n", str);
 		if (*(str_ptr) == NULL) {
 			*(str_ptr) = str;
 		} else {
