@@ -60,8 +60,7 @@ int main(void)
 	/* Get path to config file */
 	char *config_file = NULL;
 
-	add_to_string(&config_file, BOOT_DIR);
-	add_to_string(&config_file, "/syslinux/syslinux.cfg");
+	add_to_string(&config_file, 2, BOOT_DIR, "/syslinux/syslinux.cfg");
 
 	int line_number = 0;
 

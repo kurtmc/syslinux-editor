@@ -1,5 +1,6 @@
 #ifndef CONFIG_HANDLER_H
 #define CONFIG_HANDLER_H
+#include <stdarg.h>
 
 
 struct boot_option {
@@ -22,7 +23,7 @@ struct node {
 struct boot_option *new_boot_option();
 void print_boot_option(struct boot_option *b);
 void fprint_boot_option(FILE *fp, struct boot_option *b);
-void add_to_string(char **str_ptr, char *str);
+void add_to_string(char **str_ptr, int num, ...);
 void print_file(char *path, int start_line, int end_line);
 char *get_part_file(char *path, int start_line, int end_line);
 struct node *parse_config_file(struct boot_option ***boot_options, int *size,
