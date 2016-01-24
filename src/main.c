@@ -24,7 +24,7 @@ void build_menu(void)
 	clear();
 	/* Initialize items */
 	n_choices = size;
-	my_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *));
+	my_items = calloc(n_choices + 1, sizeof(ITEM *));
 	char *str;
 
 	for (i = 0; i < n_choices; ++i) {
@@ -34,10 +34,10 @@ void build_menu(void)
 			str = "";
 		my_items[i] = new_item(boot_options[i]->menu_label, str);
 	}
-	my_items[n_choices] = (ITEM *)NULL;
+	my_items[n_choices] = NULL;
 
 	/* Create menu */
-	my_menu = new_menu((ITEM **)my_items);
+	my_menu = new_menu(my_items);
 
 	/* Set fore ground and back ground of the menu */
 	set_menu_fore(my_menu, COLOR_PAIR(1) | A_REVERSE);
