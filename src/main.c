@@ -139,7 +139,7 @@ int main(void)
 			}
 			build_menu();
 			refresh();
-			output_config_file(head, "test.txt");
+			output_config_file(head, config_file);
 
 			break;
 

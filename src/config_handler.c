@@ -299,11 +299,34 @@ void delete_configuration(struct node **head, struct boot_option *to_delete, cha
 
 void output_config_file(struct node *head, char *path)
 {
+	/* clean up trailing whitespace */
+	struct node *current;
+	current = head;
+	struct node *last_non_whitespace;
+	while (current) {
+		if (current->type == TEXT_BLOCK) {
+			if (strcmp((char *)current->data, "\n") != 0) {
+				last_non_whitespace = current;
+			}
+		} else {
+			last_non_whitespace = current;
+		}
+		current = current->next;
+	}
+	current = last_non_whitespace->next;
+	last_non_whitespace->next = NULL;
+
+	while (current) {
+		free(current->data);
+		struct node *to_free = current;
+		current = current->next;
+		free(to_free);
+	}
+
 	FILE *fp;
 
 	fp = fopen(path, "w+");
 
-	struct node *current;
 	current = head;
 	while (current) {
 		if (current->type == BOOT_OPTION) {
