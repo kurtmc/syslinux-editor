@@ -50,6 +50,27 @@ MENU *build_menu(int size, struct boot_option **boot_options)
 	return my_menu;
 }
 
+void update_menu(MENU *menu, int size, ITEM **old_items, struct boot_option **boot_options)
+{
+	ITEM **new_items;
+
+	new_items = realloc(old_items, (size + 1) * sizeof(ITEM *));
+
+	char *str;
+	for (int i = 0; i < size; i++) {
+		if (boot_options[i]->root)
+			str = boot_options[i]->root;
+		else
+			str = "";
+		new_items[i] = new_item(boot_options[i]->menu_label, str);
+	}
+	new_items[size] = NULL;
+
+	unpost_menu(menu);
+	set_menu_items(menu, new_items);
+	post_menu(menu);
+}
+
 int main(void)
 {
 	MENU *my_menu;
@@ -138,7 +159,7 @@ int main(void)
 						BOOT_DIR);
 				size = get_boot_options_list(&boot_options, head);
 			}
-			my_menu = build_menu(size, boot_options);
+			update_menu(my_menu, size, my_items, boot_options);
 			refresh();
 			output_config_file(head, config_file);
 
