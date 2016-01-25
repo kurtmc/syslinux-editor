@@ -12,12 +12,9 @@
 
 MENU *build_menu(int size, struct boot_option **boot_options)
 {
-	MENU *my_menu;
-	ITEM **my_items;
-
 	clear();
 	/* Initialize items */
-	my_items = calloc(size + 1, sizeof(ITEM *));
+	ITEM **my_items = calloc(size + 1, sizeof(ITEM *));
 	char *str;
 
 	for (int i = 0; i < size; i++) {
@@ -30,7 +27,7 @@ MENU *build_menu(int size, struct boot_option **boot_options)
 	my_items[size] = NULL;
 
 	/* Create menu */
-	my_menu = new_menu(my_items);
+	MENU *my_menu = new_menu(my_items);
 
 	/* Set fore ground and back ground of the menu */
 	set_menu_fore(my_menu, COLOR_PAIR(1) | A_REVERSE);
@@ -52,9 +49,7 @@ MENU *build_menu(int size, struct boot_option **boot_options)
 
 void update_menu(MENU *menu, int size, ITEM **old_items, struct boot_option **boot_options)
 {
-	ITEM **new_items;
-
-	new_items = realloc(old_items, (size + 1) * sizeof(ITEM *));
+	ITEM **new_items = realloc(old_items, (size + 1) * sizeof(ITEM *));
 
 	char *str;
 	for (int i = 0; i < size; i++) {
@@ -73,10 +68,7 @@ void update_menu(MENU *menu, int size, ITEM **old_items, struct boot_option **bo
 
 int main(void)
 {
-	MENU *my_menu;
-	int size;
 	struct boot_option **boot_options = NULL;
-	ITEM **my_items;
 
 	/* Get path to config file */
 	char *config_file = NULL;
@@ -85,7 +77,7 @@ int main(void)
 
 	struct node *head = parse_config_file(config_file);
 
-	size = get_boot_options_list(&boot_options, head);
+	int size = get_boot_options_list(&boot_options, head);
 
 	/* Initialize curses */
 	initscr();
@@ -97,8 +89,8 @@ int main(void)
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
 	init_pair(3, COLOR_MAGENTA, COLOR_BLACK);
 
-	my_menu = build_menu(size, boot_options);
-	my_items = menu_items(my_menu);
+	MENU *my_menu = build_menu(size, boot_options);
+	ITEM **my_items = menu_items(my_menu);
 	refresh();
 
 	struct boot_option **to_delete_array;
@@ -182,8 +174,6 @@ exit:
 	free_menu(my_menu);
 	endwin();
 	free(config_file);
-
-
 
 	return 0;
 }
