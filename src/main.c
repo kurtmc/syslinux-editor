@@ -173,8 +173,12 @@ int main(void)
 
 exit:
 	unpost_menu(my_menu);
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size; i++) {
 		free_item(my_items[i]);
+		free_boot_option(boot_options[i]);
+	}
+	free(boot_options);
+
 	free_menu(my_menu);
 	endwin();
 	free(config_file);

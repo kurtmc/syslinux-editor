@@ -29,5 +29,6 @@ void delete_configuration(struct node **head, struct boot_option *to_delete,
 void output_config_file(struct node *head, char *path);
 int get_boot_options_list(struct boot_option ***boot_options,
 		struct node *head);
+void free_boot_option(struct boot_option *bo);
 
 #endif
