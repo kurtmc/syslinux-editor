@@ -13,7 +13,6 @@
 
 ITEM **my_items;
 MENU *my_menu;
-ITEM *cur_item;
 int size;
 struct boot_option **boot_options;
 
