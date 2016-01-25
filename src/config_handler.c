@@ -47,15 +47,19 @@ void fprint_boot_option(FILE *fp, struct boot_option *b)
 void add_to_string(char **str_ptr, int num, ...)
 {
 	va_list valist;
+
 	va_start(valist, num);
 
 	for (int i = 0; i < num; i++) {
 		char *str = va_arg(valist, char *);
+
 		if (*(str_ptr) == NULL) {
 			*(str_ptr) = strdup(str);
 		} else {
-			*(str_ptr) = realloc(*(str_ptr), strlen(*(str_ptr)) +
-					strlen(str) + 1); /* +1 for null termination */
+			/* +1 for null termination */
+			*(str_ptr) =
+				realloc(*(str_ptr), strlen(*(str_ptr)) +
+				strlen(str) + 1);
 
 			strcat(*(str_ptr), str);
 
@@ -92,11 +96,13 @@ struct node *parse_config_file(char *config_file)
 				token = strtok(NULL, " \t\n");
 				boot = new_boot_option();
 				struct node *current;
+
 				if (head == NULL) {
 					head = malloc(sizeof(struct node));
 					current = head;
 				} else {
-					tail->next = malloc(sizeof(struct node));
+					tail->next =
+						malloc(sizeof(struct node));
 					current = tail->next;
 				}
 				current->type = BOOT_OPTION;
@@ -109,7 +115,8 @@ struct node *parse_config_file(char *config_file)
 				token = strtok(NULL, " \t\n");
 				if (strcmp(token, "LABEL") == 0) {
 					token = strtok(NULL, " \t\n");
-					add_to_string(&boot->menu_label, 1, token);
+					add_to_string(&boot->menu_label, 1,
+							token);
 					token = strtok(NULL, " \t\n");
 					while (token) {
 						add_to_string(&boot->menu_label,
@@ -118,11 +125,14 @@ struct node *parse_config_file(char *config_file)
 					}
 				} else {
 					struct node *current;
+
 					if (head == NULL) {
-						head = malloc(sizeof(struct node));
+						head =
+						malloc(sizeof(struct node));
 						current = head;
 					} else {
-						tail->next = malloc(sizeof(struct node));
+						tail->next =
+						malloc(sizeof(struct node));
 						current = tail->next;
 					}
 					current->type = TEXT_BLOCK;
@@ -138,7 +148,8 @@ struct node *parse_config_file(char *config_file)
 				add_to_string(&boot->root, 1, token);
 				token = strtok(NULL, " \t\n");
 				while (token) {
-					add_to_string(&boot->root, 2, " ", token);
+					add_to_string(&boot->root, 2, " ",
+							token);
 					token = strtok(NULL, " \t\n");
 				}
 			} else if (strcmp(token, "INITRD") == 0) {
@@ -149,11 +160,13 @@ struct node *parse_config_file(char *config_file)
 				add_to_string(&boot->com32, 1, token);
 			} else {
 				struct node *current;
+
 				if (head == NULL) {
 					head = malloc(sizeof(struct node));
 					current = head;
 				} else {
-					tail->next = malloc(sizeof(struct node));
+					tail->next =
+						malloc(sizeof(struct node));
 					current = tail->next;
 				}
 				current->type = TEXT_BLOCK;
@@ -163,6 +176,7 @@ struct node *parse_config_file(char *config_file)
 			}
 		} else {
 			struct node *current;
+
 			if (head == NULL) {
 				head = malloc(sizeof(struct node));
 				current = head;
@@ -184,24 +198,25 @@ struct node *parse_config_file(char *config_file)
 	return head;
 }
 
-void delete_configuration(struct node **head, struct boot_option *to_delete, char *boot_dir)
+void delete_configuration(struct node **head, struct boot_option *to_delete,
+		char *boot_dir)
 {
 	/* Handle to_delete is the head node */
-	if (to_delete == (struct boot_option *)(*head)->data) {
+	if (to_delete == (struct boot_option *)(*head)->data)
 		*head = (*head)->next;
-	}
 
 	struct node *current = (*head)->next;
 	struct node *previous = *head;
+
 	while (current) {
-		if ((struct boot_option *)current->data == to_delete) {
+		if ((struct boot_option *)current->data == to_delete)
 			previous->next = current->next;
-		}
 		current = current->next;
 		previous = previous->next;
 	}
 
 	char *image;
+
 	if (to_delete->image != NULL) {
 		image = NULL;
 		add_to_string(&image, 3, boot_dir, "/",
@@ -210,9 +225,11 @@ void delete_configuration(struct node **head, struct boot_option *to_delete, cha
 		free(image);
 	}
 	char *initrd;
+
 	if (to_delete->initrd != NULL) {
 		initrd = NULL;
-		add_to_string(&initrd, 3, boot_dir, "/", basename(to_delete->initrd));
+		add_to_string(&initrd, 3, boot_dir, "/",
+				basename(to_delete->initrd));
 		remove(initrd);
 		free(initrd);
 	}
@@ -223,13 +240,14 @@ void output_config_file(struct node *head, char *path)
 {
 	/* clean up trailing whitespace */
 	struct node *current;
+
 	current = head;
 	struct node *last_non_whitespace;
+
 	while (current) {
 		if (current->type == TEXT_BLOCK) {
-			if (strcmp((char *)current->data, "\n") != 0) {
+			if (strcmp((char *)current->data, "\n") != 0)
 				last_non_whitespace = current;
-			}
 		} else {
 			last_non_whitespace = current;
 		}
@@ -241,6 +259,7 @@ void output_config_file(struct node *head, char *path)
 	while (current) {
 		free(current->data);
 		struct node *to_free = current;
+
 		current = current->next;
 		free(to_free);
 	}
@@ -252,7 +271,8 @@ void output_config_file(struct node *head, char *path)
 	current = head;
 	while (current) {
 		if (current->type == BOOT_OPTION) {
-			fprint_boot_option(fp, (struct boot_option *)current->data);
+			fprint_boot_option(fp,
+					(struct boot_option *)current->data);
 		} else {
 			fprintf(fp, (char *)current->data);
 		}
@@ -261,19 +281,23 @@ void output_config_file(struct node *head, char *path)
 	fclose(fp);
 }
 
-/* Get an array or struct boot_option * from a mixed linked list 
- * Don't pass a non malloced pointer as boot_options */
-void get_boot_options_list(struct boot_option ***boot_options, int *size, struct node *head)
+/* Get an array or struct boot_option * from a mixed linked list
+ * Don't pass a non malloced pointer as boot_options
+ */
+void get_boot_options_list(struct boot_option ***boot_options, int *size,
+		struct node *head)
 {
 	*size = 0;
 	struct node *current;
+
 	current = head;
 	while (current) {
 		if (current->type == BOOT_OPTION) {
 			(*boot_options) =
-				realloc(*boot_options,
-				++(*size) * sizeof(struct boot_option *));
-			(*boot_options)[*size - 1] = (struct boot_option *)current->data;
+			realloc(*boot_options,
+			++(*size) * sizeof(struct boot_option *));
+			(*boot_options)[*size - 1] =
+				(struct boot_option *)current->data;
 		}
 		current = current->next;
 	}
