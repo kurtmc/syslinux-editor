@@ -49,9 +49,9 @@ void build_menu(void)
 	mvprintw(LINES - 4, 0,
 			"Hightlight option and press 'd' to select it for deletion");
 	mvprintw(LINES - 3, 0,
-			"J and K arrow keys to naviage, q to quit");
+			"J and K or arrow keys to navigate, 'q' to quit");
 	mvprintw(LINES - 2, 0,
-			"After selecting options press a to apply changes");
+			"After selecting options press 'a' to apply changes");
 	post_menu(my_menu);
 }
 
