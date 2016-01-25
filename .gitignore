@@ -1,2 +1,3 @@
 *.o
 syslinux_editor
+*.swp

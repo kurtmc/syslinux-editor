@@ -14,27 +14,25 @@
 ITEM **my_items;
 int c;
 MENU *my_menu;
-int n_choices, i;
 ITEM *cur_item;
 int size;
 struct boot_option **boot_options;
 
-void build_menu(void)
+void build_menu(int size)
 {
 	clear();
 	/* Initialize items */
-	n_choices = size;
-	my_items = calloc(n_choices + 1, sizeof(ITEM *));
+	my_items = calloc(size + 1, sizeof(ITEM *));
 	char *str;
 
-	for (i = 0; i < n_choices; ++i) {
+	for (int i = 0; i < size; i++) {
 		if (boot_options[i]->root)
 			str = boot_options[i]->root;
 		else
 			str = "";
 		my_items[i] = new_item(boot_options[i]->menu_label, str);
 	}
-	my_items[n_choices] = NULL;
+	my_items[size] = NULL;
 
 	/* Create menu */
 	my_menu = new_menu(my_items);
@@ -76,7 +74,7 @@ int main(void)
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
 	init_pair(3, COLOR_MAGENTA, COLOR_BLACK);
 
-	build_menu();
+	build_menu(size);
 	refresh();
 
 	struct boot_option **to_delete_array;
@@ -119,7 +117,7 @@ int main(void)
 		case 'a':
 			to_delete_array = NULL;
 			num_indexes = 0;
-			for (int i = 0; i < n_choices; i++) {
+			for (int i = 0; i < size; i++) {
 				if ((O_SELECTABLE & item_opts(my_items[i])) !=
 						O_SELECTABLE) {
 					to_delete_array =
@@ -137,7 +135,7 @@ int main(void)
 						BOOT_DIR);
 				size = get_boot_options_list(&boot_options, head);
 			}
-			build_menu();
+			build_menu(size);
 			refresh();
 			output_config_file(head, config_file);
 
@@ -151,7 +149,7 @@ int main(void)
 
 exit:
 	unpost_menu(my_menu);
-	for (i = 0; i < n_choices; ++i)
+	for (int i = 0; i < size; i++)
 		free_item(my_items[i]);
 	free_menu(my_menu);
 	endwin();
