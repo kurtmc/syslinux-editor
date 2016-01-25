@@ -64,7 +64,7 @@ int main(void)
 
 	struct node *head = parse_config_file(config_file);
 
-	get_boot_options_list(&boot_options, &size, head);
+	size = get_boot_options_list(&boot_options, head);
 
 	/* Initialize curses */
 	initscr();
@@ -135,8 +135,7 @@ int main(void)
 			for (int i = num_indexes - 1; i >= 0; i--) {
 				delete_configuration(&head, to_delete_array[i],
 						BOOT_DIR);
-				get_boot_options_list(&boot_options, &size,
-						head);
+				size = get_boot_options_list(&boot_options, head);
 			}
 			build_menu();
 			refresh();

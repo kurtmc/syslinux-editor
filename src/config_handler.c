@@ -275,12 +275,12 @@ void output_config_file(struct node *head, char *path)
 }
 
 /* Get an array or struct boot_option * from a mixed linked list
- * Don't pass a non malloced pointer as boot_options
+ * Returns the number of boot_options allocated
  */
-void get_boot_options_list(struct boot_option ***boot_options, int *size,
+int get_boot_options_list(struct boot_option ***boot_options,
 		struct node *head)
 {
-	*size = 0;
+	int size = 0;
 	struct node *current;
 
 	current = head;
@@ -288,10 +288,11 @@ void get_boot_options_list(struct boot_option ***boot_options, int *size,
 		if (current->type == BOOT_OPTION) {
 			(*boot_options) =
 			realloc(*boot_options,
-			++(*size) * sizeof(struct boot_option *));
-			(*boot_options)[*size - 1] =
+			++size * sizeof(struct boot_option *));
+			(*boot_options)[size - 1] =
 				(struct boot_option *)current->data;
 		}
 		current = current->next;
 	}
+	return size;
 }

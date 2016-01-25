@@ -27,7 +27,7 @@ struct node *parse_config_file(char *config_file);
 void delete_configuration(struct node **head, struct boot_option *to_delete,
 		char *boot_dir);
 void output_config_file(struct node *head, char *path);
-void get_boot_options_list(struct boot_option ***boot_options, int *size,
+int get_boot_options_list(struct boot_option ***boot_options,
 		struct node *head);
 
 #endif
