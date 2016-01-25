@@ -3,21 +3,18 @@
 #include <string.h>
 #include "config_handler.h"
 
-#define CTRLD 4
-
 #ifdef DEBUG
 #define BOOT_DIR  "./test/test-boot"
 #else
 #define BOOT_DIR "/boot"
 #endif
 
-ITEM **my_items;
-MENU *my_menu;
-int size;
-struct boot_option **boot_options;
 
-void build_menu(int size)
+MENU *build_menu(int size, struct boot_option **boot_options)
 {
+	MENU *my_menu;
+	ITEM **my_items;
+
 	clear();
 	/* Initialize items */
 	my_items = calloc(size + 1, sizeof(ITEM *));
@@ -49,10 +46,17 @@ void build_menu(int size)
 	mvprintw(LINES - 2, 0,
 			"After selecting options press 'a' to apply changes");
 	post_menu(my_menu);
+
+	return my_menu;
 }
 
 int main(void)
 {
+	MENU *my_menu;
+	int size;
+	struct boot_option **boot_options = NULL;
+	ITEM **my_items;
+
 	/* Get path to config file */
 	char *config_file = NULL;
 
@@ -72,7 +76,8 @@ int main(void)
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
 	init_pair(3, COLOR_MAGENTA, COLOR_BLACK);
 
-	build_menu(size);
+	my_menu = build_menu(size, boot_options);
+	my_items = menu_items(my_menu);
 	refresh();
 
 	struct boot_option **to_delete_array;
@@ -133,7 +138,7 @@ int main(void)
 						BOOT_DIR);
 				size = get_boot_options_list(&boot_options, head);
 			}
-			build_menu(size);
+			my_menu = build_menu(size, boot_options);
 			refresh();
 			output_config_file(head, config_file);
 
