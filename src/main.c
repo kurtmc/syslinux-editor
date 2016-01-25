@@ -12,7 +12,6 @@
 #endif
 
 ITEM **my_items;
-int c;
 MENU *my_menu;
 ITEM *cur_item;
 int size;
@@ -79,7 +78,7 @@ int main(void)
 
 	struct boot_option **to_delete_array;
 	int num_indexes;
-
+	int c;
 	while ((c = getch()) != KEY_F(1)) {
 		switch (c) {
 		case KEY_DOWN:
