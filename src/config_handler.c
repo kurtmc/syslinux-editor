@@ -44,28 +44,26 @@ void fprint_boot_option(FILE *fp, struct boot_option *b)
 		fprintf(fp, "\tCOM32 %s\n", b->com32);
 }
 
-void add_to_string(char **str_ptr, int num, ...)
+char *add_to_string(char *str, int num, ...)
 {
 	va_list valist;
 
 	va_start(valist, num);
 
 	for (int i = 0; i < num; i++) {
-		char *str = va_arg(valist, char *);
+		char *str_arg = va_arg(valist, char *);
 
-		if (*(str_ptr) == NULL) {
-			*(str_ptr) = strdup(str);
+		if (str == NULL) {
+			str = strdup(str_arg);
 		} else {
 			/* +1 for null termination */
-			*(str_ptr) =
-				realloc(*(str_ptr), strlen(*(str_ptr)) +
-				strlen(str) + 1);
-
-			strcat(*(str_ptr), str);
+			str = realloc(str, strlen(str) + strlen(str_arg) + 1);
+			strcat(str, str_arg);
 
 		}
 	}
 	va_end(valist);
+	return str;
 }
 
 struct node *parse_config_file(char *config_file)
@@ -115,12 +113,10 @@ struct node *parse_config_file(char *config_file)
 				token = strtok(NULL, " \t\n");
 				if (strcmp(token, "LABEL") == 0) {
 					token = strtok(NULL, " \t\n");
-					add_to_string(&boot->menu_label, 1,
-							token);
+					boot->menu_label = add_to_string(boot->menu_label, 1, token);
 					token = strtok(NULL, " \t\n");
 					while (token) {
-						add_to_string(&boot->menu_label,
-								2, " ", token);
+						boot->menu_label = add_to_string(boot->menu_label, 2, " ", token);
 						token = strtok(NULL, " \t\n");
 					}
 				} else {
@@ -142,22 +138,21 @@ struct node *parse_config_file(char *config_file)
 				}
 			} else if (strcmp(token, "LINUX") == 0) {
 				token = strtok(NULL, " \t\n");
-				add_to_string(&boot->image, 1, token);
+				boot->image = add_to_string(boot->image, 1, token);
 			} else if (strcmp(token, "APPEND") == 0) {
 				token = strtok(NULL, " \t\n");
-				add_to_string(&boot->root, 1, token);
+				boot->root = add_to_string(boot->root, 1, token);
 				token = strtok(NULL, " \t\n");
 				while (token) {
-					add_to_string(&boot->root, 2, " ",
-							token);
+					boot->root = add_to_string(boot->root, 2, " ", token);
 					token = strtok(NULL, " \t\n");
 				}
 			} else if (strcmp(token, "INITRD") == 0) {
 				token = strtok(NULL, " \t\n");
-				add_to_string(&boot->initrd, 1, token);
+				boot->initrd = add_to_string(boot->initrd, 1, token);
 			} else if (strcmp(token, "COM32") == 0) {
 				token = strtok(NULL, " \t\n");
-				add_to_string(&boot->com32, 1, token);
+				boot->com32 = add_to_string(boot->com32, 1, token);
 			} else {
 				struct node *current;
 
@@ -219,8 +214,7 @@ void delete_configuration(struct node **head, struct boot_option *to_delete,
 
 	if (to_delete->image != NULL) {
 		image = NULL;
-		add_to_string(&image, 3, boot_dir, "/",
-				basename(to_delete->image));
+		image = add_to_string(image, 3, boot_dir, "/", basename(to_delete->image));
 		remove(image);
 		free(image);
 	}
@@ -228,8 +222,7 @@ void delete_configuration(struct node **head, struct boot_option *to_delete,
 
 	if (to_delete->initrd != NULL) {
 		initrd = NULL;
-		add_to_string(&initrd, 3, boot_dir, "/",
-				basename(to_delete->initrd));
+		initrd = add_to_string(initrd, 3, boot_dir, "/", basename(to_delete->initrd));
 		remove(initrd);
 		free(initrd);
 	}

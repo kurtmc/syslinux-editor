@@ -60,7 +60,7 @@ int main(void)
 	/* Get path to config file */
 	char *config_file = NULL;
 
-	add_to_string(&config_file, 2, BOOT_DIR, "/syslinux/syslinux.cfg");
+	config_file = add_to_string(config_file, 2, BOOT_DIR, "/syslinux/syslinux.cfg");
 
 	struct node *head = parse_config_file(config_file);
 
