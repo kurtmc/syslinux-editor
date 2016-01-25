@@ -63,6 +63,7 @@ int main(void)
 	add_to_string(&config_file, 2, BOOT_DIR, "/syslinux/syslinux.cfg");
 
 	struct node *head = parse_config_file(config_file);
+
 	get_boot_options_list(&boot_options, &size, head);
 
 	/* Initialize curses */
@@ -121,19 +122,21 @@ int main(void)
 			for (int i = 0; i < n_choices; i++) {
 				if ((O_SELECTABLE & item_opts(my_items[i])) !=
 						O_SELECTABLE) {
-					to_delete_array = realloc(to_delete_array,
-							++num_indexes *
-							sizeof(struct boot_option *));
-					to_delete_array[num_indexes - 1] = boot_options[i];
+					to_delete_array =
+						realloc(to_delete_array,
+						++num_indexes *
+						sizeof(struct boot_option *));
+					to_delete_array[num_indexes - 1] =
+						boot_options[i];
 
 
 				}
 			}
 			for (int i = num_indexes - 1; i >= 0; i--) {
-				/*delete_configuration(&boot_options, &size,
-						indexes[i], BOOT_DIR);*/
-				delete_configuration(&head, to_delete_array[i], BOOT_DIR);
-				get_boot_options_list(&boot_options, &size, head);
+				delete_configuration(&head, to_delete_array[i],
+						BOOT_DIR);
+				get_boot_options_list(&boot_options, &size,
+						head);
 			}
 			build_menu();
 			refresh();
