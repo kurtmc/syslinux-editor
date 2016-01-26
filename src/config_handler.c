@@ -66,6 +66,23 @@ char *add_to_string(char *str, int num, ...)
 	return str;
 }
 
+struct node *add_node(struct node **headp, struct node *tail, data_type type, void *data)
+{
+	struct node *new_node = malloc(sizeof(struct node));
+
+	new_node->type = type;
+	new_node->data = data;
+	new_node->next = NULL;
+
+	if (*headp == NULL) {
+		*headp = new_node;
+	} else {
+		tail->next = new_node;
+	}
+
+	return new_node;
+}
+
 struct node *parse_config_file(char *config_file)
 {
 	FILE *fp;
@@ -93,22 +110,8 @@ struct node *parse_config_file(char *config_file)
 			if (strcmp(token, "LABEL") == 0) {
 				token = strtok(NULL, " \t\n");
 				boot = new_boot_option();
-				struct node *current;
-
-				if (head == NULL) {
-					head = malloc(sizeof(struct node));
-					current = head;
-				} else {
-					tail->next =
-						malloc(sizeof(struct node));
-					current = tail->next;
-				}
-				current->type = BOOT_OPTION;
-				current->data = boot;
-				current->next = NULL;
-				tail = current;
 				boot->label = strdup(token);
-
+				tail = add_node(&head, tail, BOOT_OPTION, boot);
 			} else if (strcmp(token, "MENU") == 0) {
 				token = strtok(NULL, " \t\n");
 				if (strcmp(token, "LABEL") == 0) {
@@ -120,21 +123,7 @@ struct node *parse_config_file(char *config_file)
 						token = strtok(NULL, " \t\n");
 					}
 				} else {
-					struct node *current;
-
-					if (head == NULL) {
-						head =
-						malloc(sizeof(struct node));
-						current = head;
-					} else {
-						tail->next =
-						malloc(sizeof(struct node));
-						current = tail->next;
-					}
-					current->type = TEXT_BLOCK;
-					current->data = strdup(line);
-					current->next = NULL;
-					tail = current;
+					tail = add_node(&head, tail, TEXT_BLOCK, strdup(line));
 				}
 			} else if (strcmp(token, "LINUX") == 0) {
 				token = strtok(NULL, " \t\n");
@@ -154,35 +143,10 @@ struct node *parse_config_file(char *config_file)
 				token = strtok(NULL, " \t\n");
 				boot->com32 = add_to_string(boot->com32, 1, token);
 			} else {
-				struct node *current;
-
-				if (head == NULL) {
-					head = malloc(sizeof(struct node));
-					current = head;
-				} else {
-					tail->next =
-						malloc(sizeof(struct node));
-					current = tail->next;
-				}
-				current->type = TEXT_BLOCK;
-				current->data = strdup(line);
-				current->next = NULL;
-				tail = current;
+				tail = add_node(&head, tail, TEXT_BLOCK, strdup(line));
 			}
 		} else {
-			struct node *current;
-
-			if (head == NULL) {
-				head = malloc(sizeof(struct node));
-				current = head;
-			} else {
-				tail->next = malloc(sizeof(struct node));
-				current = tail->next;
-			}
-			current->type = TEXT_BLOCK;
-			current->data = strdup(line);
-			current->next = NULL;
-			tail = current;
+			tail = add_node(&head, tail, TEXT_BLOCK, strdup(line));
 		}
 		free(line_copy);
 	}
@@ -287,8 +251,8 @@ int get_boot_options_list(struct boot_option ***boot_options,
 	while (current) {
 		if (current->type == BOOT_OPTION) {
 			(*boot_options) =
-			realloc(*boot_options,
-			++size * sizeof(struct boot_option *));
+				realloc(*boot_options,
+						++size * sizeof(struct boot_option *));
 			(*boot_options)[size - 1] =
 				(struct boot_option *)current->data;
 		}
