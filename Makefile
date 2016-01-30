@@ -5,17 +5,17 @@ LIBS = -lncurses -lmenu
 CC = gcc
 CFLAGS = -g -Wall -Wextra -Wpedantic -std=gnu11
 
-default: syslinux_editor
+default: syslinux-editor
 
 debug: CFLAGS += -DDEBUG
-debug: syslinux_editor
+debug: syslinux-editor
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-syslinux_editor: $(OBJECTS)
+syslinux-editor: $(OBJECTS)
 	$(CC) $(OBJECTS) $(LIBS) -o $@
 
 clean:
 	-rm -f $(OBJECTS)
-	-rm -f syslinux_editor
+	-rm -f syslinux-editor
