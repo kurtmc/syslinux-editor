@@ -19,3 +19,6 @@ syslinux-editor: $(OBJECTS)
 clean:
 	-rm -f $(OBJECTS)
 	-rm -f syslinux-editor
+
+install: default
+	cp syslinux-editor $(DESTDIR)/usr/bin/
