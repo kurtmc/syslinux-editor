@@ -21,4 +21,5 @@ clean:
 	-rm -f syslinux-editor
 
 install: default
+	mkdir -p $(DESTDIR)/usr/bin/
 	cp syslinux-editor $(DESTDIR)/usr/bin/
