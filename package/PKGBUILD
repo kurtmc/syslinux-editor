@@ -1,0 +1,27 @@
+# Maintainer:  Chris Severance aur.severach aATt spamgourmet dott com
+
+pkgname='syslinux-editor'
+pkgver='master'
+pkgrel='1'
+pkgdesc='Tool to clean up the /boot directory for the syslinux bootloader'
+arch=('i686' 'x86_64')
+url='https://github.com/kurtmc/syslinux-editor'
+license=('GPL2')
+depends=('ncurses')
+makedepends=('gcc')
+source=("https://github.com/kurtmc/syslinux-editor/archive/${pkgver}.tar.gz")
+sha256sums=('e29f0ecad76875f5b2c92d9d03a0e0d3de680b52c9b4dd424a945b3ae1994b5b')
+
+prepare() {
+	cd "${srcdir}/syslinux-editor-${pkgver}"
+}
+
+build() {
+	cd "${srcdir}/syslinux-editor-${pkgver}"
+	make
+}
+
+package() {
+	cd "${srcdir}/syslinux-editor-${pkgver}"
+	make install DESTDIR="${pkgdir}"
+}
