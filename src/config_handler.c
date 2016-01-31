@@ -95,12 +95,7 @@ struct node *add_node(struct node *tail, data_type type, void *data)
 
 void remove_node(struct node *previous)
 {
-	if (previous->next->next == NULL) {
-		previous->next = malloc(sizeof(struct node));
-		previous->next->data = NULL;
-	} else {
-		previous->next = previous->next->next;
-	}
+	previous->next = previous->next->next;
 }
 
 struct node *parse_config_file(char *config_file)
