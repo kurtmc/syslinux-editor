@@ -5,6 +5,22 @@
 
 #include "config_handler.h"
 
+void print_list(struct node *head)
+{
+	struct node *current = head;
+	while (current->data) {
+		if (current->type == TEXT_BLOCK) {
+			printf("TEXT\n");
+		} else if (current->type == BOOT_OPTION) {
+			printf("BOOT\n");
+		} else {
+			printf("What the fuck\n");
+			exit(1);
+		}
+		current = current->next;
+	}
+}
+
 struct boot_option *new_boot_option()
 {
 	struct boot_option *bo;
@@ -65,22 +81,26 @@ char *add_to_string(char *str, int num, ...)
 	va_end(valist);
 	return str;
 }
-
-struct node *add_node(struct node **headp, struct node *tail, data_type type, void *data)
+struct node *add_node(struct node *tail, data_type type, void *data)
 {
-	struct node *new_node = malloc(sizeof(struct node));
+	tail->type = type;
+	tail->data = data;
 
-	new_node->type = type;
-	new_node->data = data;
-	new_node->next = NULL;
+	tail->next = malloc(sizeof(struct node));
+	tail->next->data = NULL; /* identified as last node */
+	tail->next->next = NULL;
 
-	if (*headp == NULL) {
-		*headp = new_node;
+	return tail->next;
+}
+
+void remove_node(struct node *previous)
+{
+	if (previous->next->next == NULL) {
+		previous->next = malloc(sizeof(struct node));
+		previous->next->data = NULL;
 	} else {
-		tail->next = new_node;
+		previous->next = previous->next->next;
 	}
-
-	return new_node;
 }
 
 struct node *parse_config_file(char *config_file)
@@ -94,8 +114,9 @@ struct node *parse_config_file(char *config_file)
 	if (fp == NULL)
 		exit(EXIT_FAILURE);
 
-	struct node *head = NULL;
-	struct node *tail = NULL;
+	struct node *head = malloc(sizeof(struct node));
+	head->data = NULL;
+	struct node *tail = head;
 	struct boot_option *boot;
 
 
@@ -111,7 +132,7 @@ struct node *parse_config_file(char *config_file)
 				token = strtok(NULL, " \t\n");
 				boot = new_boot_option();
 				boot->label = strdup(token);
-				tail = add_node(&head, tail, BOOT_OPTION, boot);
+				tail = add_node(tail, BOOT_OPTION, boot);
 			} else if (strcmp(token, "MENU") == 0) {
 				token = strtok(NULL, " \t\n");
 				if (strcmp(token, "LABEL") == 0) {
@@ -123,7 +144,7 @@ struct node *parse_config_file(char *config_file)
 						token = strtok(NULL, " \t\n");
 					}
 				} else {
-					tail = add_node(&head, tail, TEXT_BLOCK, strdup(line));
+					tail = add_node(tail, TEXT_BLOCK, strdup(line));
 				}
 			} else if (strcmp(token, "LINUX") == 0) {
 				token = strtok(NULL, " \t\n");
@@ -143,10 +164,10 @@ struct node *parse_config_file(char *config_file)
 				token = strtok(NULL, " \t\n");
 				boot->com32 = add_to_string(boot->com32, 1, token);
 			} else {
-				tail = add_node(&head, tail, TEXT_BLOCK, strdup(line));
+				tail = add_node(tail, TEXT_BLOCK, strdup(line));
 			}
 		} else {
-			tail = add_node(&head, tail, TEXT_BLOCK, strdup(line));
+			tail = add_node(tail, TEXT_BLOCK, strdup(line));
 		}
 		free(line_copy);
 	}
@@ -167,9 +188,11 @@ void delete_configuration(struct node **head, struct boot_option *to_delete,
 	struct node *current = (*head)->next;
 	struct node *previous = *head;
 
-	while (current) {
-		if ((struct boot_option *)current->data == to_delete)
-			previous->next = current->next;
+	while (current->data) {
+		if ((struct boot_option *)current->data == to_delete) {
+			remove_node(previous);
+			break;
+		}
 		current = current->next;
 		previous = previous->next;
 	}
@@ -201,7 +224,7 @@ void output_config_file(struct node *head, char *path)
 	current = head;
 	struct node *last_non_whitespace;
 
-	while (current) {
+	while (current->data) {
 		if (current->type == TEXT_BLOCK) {
 			if (strcmp((char *)current->data, "\n") != 0)
 				last_non_whitespace = current;
@@ -211,9 +234,9 @@ void output_config_file(struct node *head, char *path)
 		current = current->next;
 	}
 	current = last_non_whitespace->next;
-	last_non_whitespace->next = NULL;
+	last_non_whitespace->next->data = NULL;
 
-	while (current) {
+	while (current->data) {
 		free(current->data);
 		struct node *to_free = current;
 
@@ -226,7 +249,7 @@ void output_config_file(struct node *head, char *path)
 	fp = fopen(path, "w+");
 
 	current = head;
-	while (current) {
+	while (current->data) {
 		if (current->type == BOOT_OPTION) {
 			fprint_boot_option(fp,
 					(struct boot_option *)current->data);
@@ -248,7 +271,7 @@ int get_boot_options_list(struct boot_option ***boot_options,
 	struct node *current;
 
 	current = head;
-	while (current) {
+	while (current->data) {
 		if (current->type == BOOT_OPTION) {
 			(*boot_options) =
 				realloc(*boot_options,

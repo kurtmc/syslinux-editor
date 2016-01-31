@@ -30,5 +30,7 @@ void output_config_file(struct node *head, char *path);
 int get_boot_options_list(struct boot_option ***boot_options,
 		struct node *head);
 void free_boot_option(struct boot_option *bo);
+void print_list(struct node *head);
+
 
 #endif
