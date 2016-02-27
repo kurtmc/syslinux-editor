@@ -21,6 +21,16 @@ void print_list(struct node *head)
 	}
 }
 
+void print_bo(struct node *head)
+{
+	struct node *current = head;
+	while (current->data) {
+		if (current->type == BOOT_OPTION)
+			printf("BOOT: %s\n", ((struct boot_option*)current->data)->label);
+		current = current->next;
+	}
+}
+
 struct boot_option *new_boot_option()
 {
 	struct boot_option *bo;
@@ -96,6 +106,7 @@ struct node *add_node(struct node *tail, data_type type, void *data)
 void remove_node(struct node *previous)
 {
 	previous->next = previous->next->next;
+	// TODO free memory
 }
 
 struct node *parse_config_file(char *config_file)
@@ -170,6 +181,8 @@ struct node *parse_config_file(char *config_file)
 	fclose(fp);
 	if (line)
 		free(line);
+	head = remove_duplicates(&head);
+	head = remove_duplicates(&head);
 	return head;
 }
 
@@ -277,4 +290,71 @@ int get_boot_options_list(struct boot_option ***boot_options,
 		current = current->next;
 	}
 	return size;
+}
+
+int strings_equal(char *a, char *b)
+{
+	int both_null = a == NULL ? (b == NULL ? 1 : 0 ) : 0;
+
+	if (both_null)
+		return 1;
+
+	if (a == NULL)
+		return 0;
+
+	if (b == NULL)
+		return 0;
+
+
+	return strcmp(a, b) == 0;
+}
+
+int equals(struct boot_option *left, struct boot_option *right)
+{
+	if (!strings_equal(left->label, right->label))
+		return 0;
+	printf("label same\n");
+	if (!strings_equal(left->menu_label, right->menu_label))
+		return 0;
+	printf("menu label same\n");
+	if (!strings_equal(left->image, right->image))
+		return 0;
+	printf("image same\n");
+	if (!strings_equal(left->root, right->root))
+		return 0;
+	printf("root same\n");
+	if (!strings_equal(left->initrd, right->initrd))
+		return 0;
+	printf("init same\n");
+	if (!strings_equal(left->com32, right->com32))
+		return 0;
+	printf("com32 same\n");
+
+	return 1;
+}
+
+// TODO Figure out why it can't remove the final duplicate
+struct node *remove_duplicates(struct node **head_ptr)
+{
+	struct node *current = *head_ptr;
+	struct node *previous = NULL;
+	struct node *to_compare = *head_ptr;
+
+	while (to_compare->data) {
+
+		current = to_compare->next;
+		previous = to_compare;
+
+		while (current->data) {
+			if (current->type == BOOT_OPTION && to_compare->type == BOOT_OPTION && equals(to_compare->data, current->data)) {
+				remove_node(previous);
+				break;
+			}
+			previous = previous->next;
+			current = current->next;
+		}
+
+		to_compare = to_compare->next;
+	}
+	return *head_ptr;
 }
