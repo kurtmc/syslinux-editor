@@ -313,22 +313,16 @@ int equals(struct boot_option *left, struct boot_option *right)
 {
 	if (!strings_equal(left->label, right->label))
 		return 0;
-	printf("label same\n");
 	if (!strings_equal(left->menu_label, right->menu_label))
 		return 0;
-	printf("menu label same\n");
 	if (!strings_equal(left->image, right->image))
 		return 0;
-	printf("image same\n");
 	if (!strings_equal(left->root, right->root))
 		return 0;
-	printf("root same\n");
 	if (!strings_equal(left->initrd, right->initrd))
 		return 0;
-	printf("init same\n");
 	if (!strings_equal(left->com32, right->com32))
 		return 0;
-	printf("com32 same\n");
 
 	return 1;
 }
