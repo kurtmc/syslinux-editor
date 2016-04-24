@@ -31,7 +31,9 @@ int get_boot_options_list(struct boot_option ***boot_options,
 		struct node *head);
 void free_boot_option(struct boot_option *bo);
 void print_list(struct node *head);
+void print_bo(struct node *head);
 struct node *remove_duplicates(struct node **head_ptr);
+int boot_option_count(struct node *head);
 
 
 #endif

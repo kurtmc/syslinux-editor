@@ -1,3 +1,4 @@
 *.o
 syslinux-editor
+test-suite
 *.swp

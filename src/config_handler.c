@@ -21,6 +21,19 @@ void print_list(struct node *head)
 	}
 }
 
+int boot_option_count(struct node *head)
+{
+	int count = 0;
+	struct node *current = head;
+	while (current->data) {
+		if (current->type == BOOT_OPTION)
+			count++;
+		current = current->next;
+	}
+
+	return count;
+}
+
 void print_bo(struct node *head)
 {
 	struct node *current = head;
